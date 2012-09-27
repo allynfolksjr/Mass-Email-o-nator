@@ -3,11 +3,12 @@ require 'pony'
 require 'net/http'
 require 'uri'
 require 'nokogiri'
+require 'yell'
 
 class Message
   public
 
-  # Every message requires at least the first four variables. 
+  # Every message requires at least the first four variables.
   def initialize(subject,from,to,body,cc=nil,bcc=nil,via=:sendmail)
     @subject = subject
     @from = from
@@ -22,14 +23,14 @@ class Message
   def send_message
     error_check
     if $debug
-      puts "\n\n<=> Debug Mode <=>"
-      puts "Via: #{@via}"
-      puts "From: #{@from}"
-      puts "To: #{@to}"
-      puts "Cc: #{@cc}" unless @cc.nil?
-      puts "Bcc: #{@bcc}" unless @bcc.nil?
-      puts "Subject: #{@subject}\n\n"
-      puts @body
+      #puts "\n\n<=> Debug Mode <=>"
+      #puts "Via: #{@via}"
+      #puts "From: #{@from}"
+      #puts "To: #{@to}"
+      #puts "Cc: #{@cc}" unless @cc.nil?
+      #puts "Bcc: #{@bcc}" unless @bcc.nil?
+      #puts "Subject: #{@subject}\n\n"
+      #puts @body
     else
       Pony.mail(
         to: @to,
@@ -41,7 +42,7 @@ class Message
         via: @via,
         headers: { "mailer" => "nikkyMail" }
       )
-      sleep 2 
+      sleep 2
     end
   end
 
@@ -67,20 +68,41 @@ class Mailing
   def initialize(configuration,message_parse_block=nil)
     @shared_netid_check = nil
     @configuration = configuration
+    initialize_log
     @message_parse_block = message_parse_block
     load_message_file
   end
 
-private
-# Reads the message file and saves it as a constant for later use
+  private
+  # Reads the message file and saves it as a constant for later use
   def load_message_file
     message_file = File.open(@configuration[:message_file],"r")
     # Make this a constant so we don't actually nuke it without an error
     @Message = message_file.read
   end
 
+  def initialize_log
+    if @configuration[:debug].nil?
+      @logger = Yell.new format: Yell::ExtendedFormat do |l|
+        l.adapter :datefile, 'send.log'
+        l.adapter STDOUT
+      end
+    else
+      @logger = Yell.new format: Yell::ExtendedFormat do |l|
+        l.adapter :datefile, 'test.log'
+        l.adapter STDOUT
+      end
+    end
+  end
 
- # If called, will check for shared NetID administrators and return those as a list, or if format is set as anything,
+  def log_event(sent_to,cc=nil)
+      event = "Message sent to #{sent_to}"
+      event << " CC: #{cc}" if cc
+      @logger.info event
+  end
+
+
+  # If called, will check for shared NetID administrators and return those as a list, or if format is set as anything,
   # as a pipe-seperated list.
   def check_for_shared_netid(netid,format=nil)
 
@@ -89,7 +111,7 @@ private
     key = File.read("/etc/ssl/certs/ldapmgmt.cac.washington.edu.key")
     #cert = File.read("/home/nikky/nikky_cac_washington_edu.cert")
     #key = File.read("/home/nikky/nikky_cac_washington_edu.key")
-    
+
     http = Net::HTTP.new(uri.host,uri.port)
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
     http.use_ssl = true
@@ -119,7 +141,7 @@ private
   end
 
   # reads the users file. I make it pretty sparse, and by default the only thing it assumes is that spot 0 is the "to" field. Everything else is optional
-  # and up to the implementor and their optional block to parse accordingly. 
+  # and up to the implementor and their optional block to parse accordingly.
   def parse_user_file
     @data = []
     @data = CSV.read(@configuration[:file])
@@ -163,14 +185,12 @@ private
       puts "Warning! You're about to send a message to #{@data.count} users using the data file #{@configuration[:file]} with the subject \"#{@configuration[:subject]}\"  Are you sure? [y]"
       raise "User input: quit" unless gets.strip == 'y'
     end
-# Spool up the log file
-    @log = LogFile.new("#{@configuration[:file]}.#{Time.now}.log")
     # parse through each data element (which contains at least array[0] = to
     @data.each_with_index do |local_data,index|
       # shunt it to the email parsing method
       to = parse_email_address(local_data[0])
       # shunt it to the email parsing method with the shared NetID check. It's hardcoded in for right now...
-      
+
       cc = parse_email_address(local_data[0],1) if @shared_netid_check
       # get the body by using the parse_message_contents method, which provides the entire row of data to the block (see below)
       body = parse_message_contents(local_data)
@@ -181,11 +201,10 @@ private
       # send it!
       mail.send_message
       # assuming all went well, write something to the log depending on what we're doing
-      @log.write_test_to_log(@configuration[:from],to,@configuration[:subject],body,index,cc) if $debug
-      puts "\n==>I would have sent a message, but I didn't, because I'm in debug mode.<==" if $debug
-      @log.write_message_to_log(to,index,cc) unless $debug
+     # puts "\n==>I would have sent a message, but I didn't, because I'm in debug mode.<==" if @configuration[:debug]
+      log_event(to,cc)
     end
-    @log.close_file
+   
   end
   def parse_message_contents(local_data=nil)
     return @Message unless @message_parse_block
@@ -193,51 +212,3 @@ private
     @message_parse_block.call(local_data)
   end
 end
-
-
-
-# The mailing class should do the following:
-# 
-# * take the corresponding Proc and customize the message for each user - framework in place
-# * give the project a name
-# * set up logging
-#
-# Mailing requires the following from the user:
-# * various configuration variables
-# * an optionally-defined block for message processing
-
-
-
-
-
-
-# The logging class should do the following:
-#
-# * log depending on requested verbosity
-# * do things differently depending on debug mode or not
-# * organize everything on a per-project basis
-# ** allow a user to specify a project code AND mailing #
-# * be transparent: don't require the user to do anything with logs
-
-class LogFile
-  # Grab the file name and open it for appending
-  def initialize(name)
-    @log = File.new(name,"a")
-    @log << "------------\n"
-  end
-  # Use this when the message is sent for reals.
-  def write_message_to_log(sent_to,index,cc=nil)
-    @log << "#{index}: Message sent to #{sent_to} #{Time.now}"
-    @log << "  CC: #{cc}" if cc
-    @log << "\n"
-  end
-  # Use this for testing, as it spits out more stuff, including the body.
-  def write_test_to_log(sent_from,sent_to,subject,body,index,cc=nil)
-    @log << "#{index} (Not Sent): Message sent to #{sent_to}\nCC: #{cc}\nDateTime: #{Time.now}\nSubject: #{subject}\n\n#{body}\n\n"
-  end
-  # Yeah, close the file. I think there's a better way to handle this sort of thing.
-  def close_file
-    @log.close
-  end
-end
-
