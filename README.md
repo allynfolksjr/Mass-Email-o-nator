@@ -32,6 +32,8 @@ NikkyMail also works closely with UW-related projects and notifications, and sup
 * Needs a very large rewrite.
 * CLI interface.
 * Configuration is poorly handled and even more poorly understood.
+* Store all message objects in one big array and then only send if the entire run looks good.
+* Error handling.
 
 # Bugs
 
