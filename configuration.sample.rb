@@ -11,10 +11,6 @@ configuration = {
   #debug: 1, # Uncommented, it will write message body to file instead of sending them.
   sleep: 2, # Time in seconds to sleep between messages
 }
-# If debug is set, it will write out a test log and then the message contents to stdout
-debug = nil
-#$debug = 1
-
 
 # This is all the actual program work. Just ignore it and let it do its thing.
 file = File.open(configuration[:message_file],'r')

@@ -9,40 +9,46 @@ class Message
   public
 
   # Every message requires at least the first four variables.
-  def initialize(subject,from,to,body,cc=nil,bcc=nil,via=:sendmail)
-    @subject = subject
-    @from = from
-    @to = to
-    @body = body
-    @via = via
-    @cc = cc
-    @bcc = bcc
+  def initialize(config)
+    @message_config = config
+    if @message_config[:subject].nil?
+      raise "No subject!"
+    elsif @message_config[:from].nil?
+      raise "No from address!"
+    elsif @message_config[:to].nil?
+      raise "No To address!"
+    elsif @message_config[:body].nil?
+      raise "No body!"
+    end
+    @message_config[:via] = :sendmail if @message_config[:via] == nil
+    @message_config[:sleep] = 2 if @message_config[:sleep] == nil
+    # Optional variables: cc, bcc, debug, sleep
   end
 
   # Invoke error checking and send message.
   def send_message
     error_check
-    if $debug
+    if @message_config[:debug]
       puts "\n\n<=> Debug Mode <=>"
-      puts "Via: #{@via}"
-      puts "From: #{@from}"
-      puts "To: #{@to}"
-      puts "Cc: #{@cc}" unless @cc.nil?
-      puts "Bcc: #{@bcc}" unless @bcc.nil?
-      puts "Subject: #{@subject}\n\n"
-      puts @body
+      puts "Via: #{@message_config[:via]}"
+      puts "From: #{@message_config[:from]}"
+      puts "To: #{@message_config[:to]}"
+      puts "Cc: #{@message_config[:cc]}" unless @message_config[:cc].nil?
+      puts "Bcc: #{@message_config[:bcc]}" unless @message_config[:bcc].nil?
+      puts "Subject: #{@message_config[:subject]}\n\n"
+      #puts @message_config[:body]
     else
       Pony.mail(
-        to: @to,
-        from: @from,
-        subject: @subject,
-        body: @body,
-        cc: @cc,
-        bcc: @bcc,
-        via: @via,
+        to: @message_config[:to],
+        from: @message_config[:from],
+        subject: @message_config[:subject],
+        body: @message_config[:body],
+        cc: @message_config[:cc],
+        bcc: @message_config[:bcc],
+        via: @message_config[:via],
         headers: { "mailer" => "nikkyMail" }
       )
-      sleep 2
+      sleep @message_config[:sleep]
     end
   end
 
@@ -50,10 +56,10 @@ class Message
 
   # Do some basic error checking on variables. It's fairly basic for now.
   def error_check
-    raise "Subject is blank!" if @subject.strip.length == 0
-    raise "Subject is long." if @subject.length > 120
+    raise "Subject is blank!" if @message_config[:subject].strip.length == 0
+    raise "Subject is long." if @message_config[:subject].length > 120
 
-    raise "Body is blank!" if @body.strip.length == 0
+    raise "Body is blank!" if @message_config[:body].strip.length == 0
     #raise "Body is suspeciously short." if @body.strip.length < 80
   end
 end
@@ -181,7 +187,7 @@ class Mailing
     # First, let's grab the users!
     parse_user_file
     # If we're sending for reals, have an extra check to make sure
-    if $debug.nil?
+    if @configuration[:debug].nil?
       puts "Warning! You're about to send a message to #{@data.count} users using the data file #{@configuration[:file]} with the subject \"#{@configuration[:subject]}\"  Are you sure? [y]"
       raise "User input: quit" unless gets.strip == 'y'
     end
@@ -195,9 +201,19 @@ class Mailing
       # get the body by using the parse_message_contents method, which provides the entire row of data to the block (see below)
       body = parse_message_contents(local_data)
       # create a new message object
-      mail = Message.new(@configuration[:subject],@configuration[:from],to,body,cc)
+      mail = Message.new ({
+        subject: @configuration[:subject],
+        from: @configuration[:from],
+        to: to,
+        body: body,
+        cc: cc,
+        debug: @configuration[:debug],
+        via: @configuration[:via],
+        sleep: @configuration[:sleep]
+      })
+      
       # tell them what was happening if we're not in debug (if in debug, send_message will spit out raw variables instead
-      puts "#{index}: Sending mail to #{to} (#{Time.now})\n" unless $debug
+      puts "#{index}: Sending mail to #{to} (#{Time.now})\n" unless @configuration[:debug]
       # send it!
       mail.send_message
       # assuming all went well, write something to the log depending on what we're doing
