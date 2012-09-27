@@ -1,8 +1,8 @@
 # NikkyMail
 
-Nikky Southerland
-University of Washington Information Technology
-nikky@cac.washington.edu
+Nikky Southerland  
+University of Washington Information Technology  
+nikky@cac.washington.edu  
 
 # Version History
 
