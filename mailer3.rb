@@ -23,14 +23,14 @@ class Message
   def send_message
     error_check
     if $debug
-      #puts "\n\n<=> Debug Mode <=>"
-      #puts "Via: #{@via}"
-      #puts "From: #{@from}"
-      #puts "To: #{@to}"
-      #puts "Cc: #{@cc}" unless @cc.nil?
-      #puts "Bcc: #{@bcc}" unless @bcc.nil?
-      #puts "Subject: #{@subject}\n\n"
-      #puts @body
+      puts "\n\n<=> Debug Mode <=>"
+      puts "Via: #{@via}"
+      puts "From: #{@from}"
+      puts "To: #{@to}"
+      puts "Cc: #{@cc}" unless @cc.nil?
+      puts "Bcc: #{@bcc}" unless @bcc.nil?
+      puts "Subject: #{@subject}\n\n"
+      puts @body
     else
       Pony.mail(
         to: @to,
