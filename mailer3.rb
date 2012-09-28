@@ -36,7 +36,7 @@ class Message
       puts "Cc: #{@message_config[:cc]}" unless @message_config[:cc].nil?
       puts "Bcc: #{@message_config[:bcc]}" unless @message_config[:bcc].nil?
       puts "Subject: #{@message_config[:subject]}\n\n"
-      #puts @message_config[:body]
+      puts @message_config[:body]
     else
       Pony.mail(
         to: @message_config[:to],
@@ -71,11 +71,13 @@ class Mailing
   # Accept the configuration variables and a possible message parsing block.
   #
   # TO-DO: Document variables expected/required/optional
-  def initialize(configuration,message_parse_block=nil)
-    @shared_netid_check = nil
+  def initialize(configuration)
+    @shared_netid_check = 1
     @configuration = configuration
+    @configuration[:message] ||= "message"
+    @configuration[:message_file] ||= "message"
+    @configuration[:user_file] ||= "users"
     initialize_log
-    @message_parse_block = message_parse_block
     load_message_file
   end
 
@@ -113,10 +115,10 @@ class Mailing
   def check_for_shared_netid(netid,format=nil)
 
     uri = URI.parse("https://iam-ws.u.washington.edu:7443/group_sws/v1/group/u_netid_#{netid}_admins/member")
-    cert = File.read("/etc/ssl/certs/ldapmgmt.cac.washington.edu.cert")
-    key = File.read("/etc/ssl/certs/ldapmgmt.cac.washington.edu.key")
-    #cert = File.read("/home/nikky/nikky_cac_washington_edu.cert")
-    #key = File.read("/home/nikky/nikky_cac_washington_edu.key")
+    #cert = File.read("/etc/ssl/certs/ldapmgmt.cac.washington.edu.cert")
+    #key = File.read("/etc/ssl/certs/ldapmgmt.cac.washington.edu.key")
+    cert = File.read("/home/nikky/nikky_cac_washington_edu.cert")
+    key = File.read("/home/nikky/nikky_cac_washington_edu.key")
 
     http = Net::HTTP.new(uri.host,uri.port)
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
@@ -150,7 +152,7 @@ class Mailing
   # and up to the implementor and their optional block to parse accordingly.
   def parse_user_file
     @data = []
-    @data = CSV.read(@configuration[:file])
+    @data = CSV.read(@configuration[:user_file])
     puts "I successfully parsed #{@data.count} lines of data. Here's the first one: \n#{@data[0]}\n\n"
     # Return the nice data array
     @data
@@ -223,8 +225,8 @@ class Mailing
    
   end
   def parse_message_contents(local_data=nil)
-    return @Message unless @message_parse_block
+    return @Message unless @configuration[:message_parse_block]
     message = @Message.dup
-    @message_parse_block.call(local_data)
+    @configuration[:message_parse_block].call(local_data,@Message)
   end
 end

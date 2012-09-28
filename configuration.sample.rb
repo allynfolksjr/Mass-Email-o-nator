@@ -1,25 +1,77 @@
+
+# Require the mailer library
+
 require_relative 'mailer3'
-# This configuration is full of relics. Just life with it I guess?
+
+## This hash initializes all options for the script.
+#
+# Required: domain, from, subject
+# Optional: message_file, file, via, debug, sleep
+
 configuration = {
-  domain: 'example.com', # Domain to be used if the file list just has users, ignored for full addresses
-  from: 'Test McTest <test@example.com>', # From variable
-  subject: 'Subject of all Subjects', # Subject of message
-  project_name: 'file', # Don't change this
-  message_file: 'message', # Or this
-  file: 'users', # Or this
-  via: :sendmail, # Change to :smtp if you need it
-  #debug: 1, # Uncommented, it will write message body to file instead of sending them.
-  sleep: 2, # Time in seconds to sleep between messages
+
+  ## Required variables
+
+  # Domain is appended to the end of any user in the user file that does not
+  # have a domain already. For example, "bob" would be changed to
+  # "bob@example.com". Full email addresses in the user file are *not* modified
+  domain: 'example.com',
+
+  # This is where the message is sent from.
+  from: 'Test McTest <test@example.com>',
+
+  # Subject of the message
+  subject: 'Subject of all Subjects',
+
+  ## Optional Variables
+
+  # These are either optional or pre-set with an optional override
+
+
+  # Default location for the message file: "./message." Uncomment out and modify
+  # to override.
+  #message_file: 'message',
+
+  # Default location for the file of email addresses to send to. Uncomment out
+  # to modify and override. User file format is one per line, with optional 
+  # csv format for custom data schemes.
+  #file: 'users',
+
+  # The pony library has two main methods of sending messages, via sendmail,
+  # which is the default, or smtp via localhost. Change to :smtp if required.
+  #via: :sendmail,
+
+  # Debug, when set, will display more information, not send actual messages,
+  # and writes to a test log rather than production.
+  debug: 1,
+
+
+  # Time to sleep between sending messages. Default is 2 seconds.
+  #sleep: 2,
+
+
+  # This is a really important one, for reals. When present, this block is called
+  # immediately before an individual email body is sent out, and you can use it
+  # to do any sort of required subsitution or other program logic. The data
+  # variable should be explained
+
+  # * data[]
+  # data contains the contents of the users file. data[0] is the email address
+  # data[(1...)] contains other fields in the data file as outlined by the CSV
+  # format, so you can place other information there as required, such as
+  # permissions to be parsed or additional instructions.
+  #
+  # 
+
+  message_parse_block: lambda do |data,message|
+  temp_message = message.dup
+  temp_message.gsub!(/&&NETID&&/,data[0])
+  temp_message
+end
 }
 
-# This is all the actual program work. Just ignore it and let it do its thing.
-file = File.open(configuration[:message_file],'r')
-message = file.read
-message_parse_block = Proc.new { |data| temp_message = message.dup
-temp_message.gsub!(/&&NETID&&/,data[0])
-temp_message}
+spam = Mailing.new(configuration)
 
-spam = Mailing.new(configuration,message_parse_block||=nil)
-spam.shared_netid_check = false 
+#spam = Mailing.new(configuration,message_parse_block||=nil)
+spam.shared_netid_check = false
 spam.send_message
-
