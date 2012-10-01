@@ -6,9 +6,6 @@ require 'nokogiri'
 require 'yell'
 
 class Message
-  public
-
-  # Every message requires at least the first four variables.
   def initialize(config)
     @message_config = config
     if @message_config[:subject].nil?
@@ -22,7 +19,6 @@ class Message
     end
     @message_config[:via] = :sendmail if @message_config[:via] == nil
     @message_config[:sleep] = 2 if @message_config[:sleep] == nil
-    # Optional variables: cc, bcc, debug, sleep
   end
 
   # Invoke error checking and send message.
@@ -57,22 +53,16 @@ class Message
   # Do some basic error checking on variables. It's fairly basic for now.
   def error_check
     raise "Subject is blank!" if @message_config[:subject].strip.length == 0
-    raise "Subject is long." if @message_config[:subject].length > 120
-
+    raise "Subject is long!" if @message_config[:subject].length > 120
     raise "Body is blank!" if @message_config[:body].strip.length == 0
-    #raise "Body is suspeciously short." if @body.strip.length < 80
   end
 end
 
 # Mailing is the meat and bones of this script, and basically does most everything right now
 
 class Mailing
-  attr_accessor :shared_netid_check
   # Accept the configuration variables and a possible message parsing block.
-  #
-  # TO-DO: Document variables expected/required/optional
   def initialize(configuration)
-    @shared_netid_check = 1
     @configuration = configuration
     @configuration[:message] ||= "message"
     @configuration[:message_file] ||= "message"
@@ -113,11 +103,9 @@ class Mailing
   # If called, will check for shared NetID administrators and return those as a list, or if format is set as anything,
   # as a pipe-seperated list.
   def check_for_shared_netid(netid,format=nil)
-
     uri = URI.parse("https://iam-ws.u.washington.edu:7443/group_sws/v1/group/u_netid_#{netid}_admins/member")
     cert = File.read(@configuration[:cert])
     key = File.read(@configuration[:key])
-
     http = Net::HTTP.new(uri.host,uri.port)
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
     http.use_ssl = true
@@ -127,8 +115,6 @@ class Mailing
     request = Net::HTTP::Get.new(uri.request_uri)
     response = http.request(request)
     if response.code == '404'
-      #puts "It looks like this NetID isn't a shared NetID, or doesn't exist."
-      #puts response.code
       return nil
     elsif response.code != '200'
       raise "The service didn't return a valid 200 response: #{response.code}"
@@ -152,7 +138,6 @@ class Mailing
     @data = []
     @data = CSV.read(@configuration[:user_file])
     puts "I successfully parsed #{@data.count} lines of data. Here's the first one: \n#{@data[0]}\n\n"
-    # Return the nice data array
     @data
   end
 

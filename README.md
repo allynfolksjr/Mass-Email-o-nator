@@ -6,6 +6,10 @@ nikky@cac.washington.edu
 
 # Version History
 
+## 1.0.0
+
+* Moved all configuration variables to sample configuration file
+
 ## 0.1.0
 
 *Initial Release*
