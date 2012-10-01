@@ -25,15 +25,24 @@ configuration = {
 
   ## Optional Variables
 
-  # These are either optional or pre-set with an optional override
+  # Uncomment following line to add owners/administrators of shared NetID as cc's
+  shared: 1,
 
+  # If connecting to the UW groups web service, provide the location to your
+  # cert and key
+  cert: '/home/nikky/nikky_cac_washington_edu.cert',
+  key: '/home/nikky/nikky_cac_washington_edu.key',
+
+  # The UA locations
+  #cert: '/etc/ssl/certs/ldapmgmt.cac.washington.edu.cert',
+  #key: '/etc/ssl/certs/ldapmgmt.cac.washington.edu.key',
 
   # Default location for the message file: "./message." Uncomment out and modify
   # to override.
   #message_file: 'message',
 
   # Default location for the file of email addresses to send to. Uncomment out
-  # to modify and override. User file format is one per line, with optional 
+  # to modify and override. User file format is one per line, with optional
   # csv format for custom data schemes.
   #file: 'users',
 
@@ -61,13 +70,13 @@ configuration = {
   # format, so you can place other information there as required, such as
   # permissions to be parsed or additional instructions.
   #
-  # 
+  #
 
   message_parse_block: lambda do |data,message|
-  temp_message = message.dup
-  temp_message.gsub!(/&&NETID&&/,data[0])
-  temp_message
-end
+    temp_message = message.dup
+    temp_message.gsub!(/&&NETID&&/,data[0])
+    temp_message
+  end
 }
 
 spam = Mailing.new(configuration)
