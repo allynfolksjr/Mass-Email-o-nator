@@ -146,8 +146,8 @@ class Mailing
   # * Check to see if the list has pipes, and if it does, convert it to an array
   # * Check to see if each email address has an @ in it, if not, it will add on the default domain at the end
 
-  def parse_email_address(emails)
-    emails = check_for_shared_netid(emails,1) if @configuration[:shared]
+  def parse_email_address(emails,check_for_shared_netids=nil)
+    emails = check_for_shared_netid(emails,1) if check_for_shared_netids
     emails = emails.split("|") if emails =~ /|/
     if emails.class.to_s == "String"
       parsed_emails = emails + "@" + @configuration[:domain] if emails !~ /@/
@@ -179,7 +179,7 @@ class Mailing
       to = parse_email_address(local_data[0])
       # shunt it to the email parsing method with the shared NetID check. It's hardcoded in for right now...
 
-      cc = parse_email_address(local_data[0],1) if @shared_netid_check
+      cc = parse_email_address(local_data[0],1) if @configuration[:shared]
       # get the body by using the parse_message_contents method, which provides the entire row of data to the block (see below)
       body = parse_message_contents(local_data)
       # create a new message object
