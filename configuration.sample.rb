@@ -80,7 +80,4 @@ configuration = {
 }
 
 spam = Mailing.new(configuration)
-
-#spam = Mailing.new(configuration,message_parse_block||=nil)
-spam.shared_netid_check = false
 spam.send_message
