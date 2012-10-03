@@ -20,7 +20,7 @@ nikky@cac.washington.edu
 
 # Introduction
 
-NikkyMail is very much a script that started with a) a desire to learn Ruby and b) a need for a better script to email users about various things. It began as a very simple program and has since evolved in a highly haphazard and rushed manner to include many more poorly-documented and understood features. I wouldn't recommend anyone using it.
+NikkyMail is very much a script that started with a) a desire to learn Ruby to replace Perl as a general-purpose scripting language and b) a need for a better script to email users about various things. It began as a very simple program and has since evolved in a somewhat haphazard manner.
 
 # Key Features
 
@@ -29,11 +29,38 @@ NikkyMail is very much a script that started with a) a desire to learn Ruby and 
 * Robust logging
 * Default email domain: if an address doesn't have a domain, automatically use user-defined domain and append to the end of user.
 
+
 # UW Integration
 
 NikkyMail also works closely with UW-related projects and notifications, and supports the following:
 
 * Ability to check for a Shared NetID with administrators, and CC them in the notification message.
+
+# Quick Start Guide
+
+1. Copy `configuration.sample.rb` to `configuration.rb`
+2. Populate a file named "users" with your destination addresses, one per line. 
+3. Put your message in a file named "message"
+4. Change any settings desired in `configuration.rb`
+5. Run `configuration.rb` and let it do its thing.
+
+# Full documentation
+
+The configuration file has most of the information that is required to customize this script, however, there are a few relevant points that should be mentioned and discussed in further details.
+
+## User File Processing
+
+The user file is actually read as a CSV file, which enables you to add your own data into the script. data[0] is assumed to be the destination address(es), but the rest are ignored unless explictly referenced in the message processing block, as outlined below. One possible use of this is a file that has some octal permission in data[1] field, and then the message processing block will have a custom blurb for each possible combination.
+
+## Message Processing
+
+If the symbol `:message_parse_block` is defined in the configuration file, this block will be run evey time an email is parsed. This makes the most sense when combined with the user file processing, as outlined above.
+
+## UW Groups Web Service Integration
+
+In order for the groups web service check work properly, you must have a UWCA-created certificate and key.
+
+
 
 # Caveats, To-do Etc.
 
