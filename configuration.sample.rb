@@ -44,7 +44,7 @@ configuration = {
   # Default location for the file of email addresses to send to. Uncomment out
   # to modify and override. User file format is one per line, with optional
   # csv format for custom data schemes.
-  #file: 'users',
+  #user_file: 'users',
 
   # The pony library has two main methods of sending messages, via sendmail,
   # which is the default, or smtp via localhost. Change to :smtp if required.
