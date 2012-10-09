@@ -93,10 +93,26 @@ class Mailing
     end
   end
 
-  def log_event(sent_to,cc=nil)
+  def log_message(sent_to,cc=nil)
     event = "Message sent to #{sent_to}"
     event << " CC: #{cc}" if cc
     @logger.info event
+  end
+
+  def log(message,level='info')
+    case level
+    when 'debug'
+      @logger.debug message
+    when 'info'
+      @logger.info message
+    when 'warn'
+      @logger.warn message
+    when 'error'
+      @logger.error message
+    when 'fatal'
+      @logger.fatal message
+    else raise "Not a valid error level"
+    end
   end
 
 
@@ -179,6 +195,7 @@ class Mailing
       puts "Warning! You're about to send a message to #{@data.count} users using the data file #{@configuration[:file]} with the subject \"#{@configuration[:subject]}\"  Are you sure? [y]"
       raise "User input: quit" unless gets.strip == 'y'
     end
+    log("Beginning mailing of '#{@configuration[:subject]}' to #{@data.count} users.")
     # parse through each data element (which contains at least array[0] = to
     @data.each_with_index do |local_data,index|
       # shunt it to the email parsing method
@@ -206,7 +223,7 @@ class Mailing
       mail.send_message
       # assuming all went well, write something to the log depending on what we're doing
       # puts "\n==>I would have sent a message, but I didn't, because I'm in debug mode.<==" if @configuration[:debug]
-      log_event(to,cc)
+      log_message(to,cc)
     end
 
   end
