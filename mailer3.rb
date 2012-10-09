@@ -158,7 +158,7 @@ class Mailing
       @blacklist = []
       @blacklist = CSV.read(@configuration[:blacklist])
       @data = @data - @blacklist
-      puts "Blacklist applied. Removed #{@data.count - datasize} out of #{@blacklist.count} entries."
+      puts "Blacklist applied. Removed #{datasize - @data.count} out of #{@blacklist.count} entries."
     end
     puts "I successfully parsed #{@data.count} lines of data. Here's the first one: \n#{@data[0]}\n\n"
     @data
