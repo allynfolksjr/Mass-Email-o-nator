@@ -44,7 +44,7 @@ configuration = {
   # Default location for the file of email addresses to send to. Uncomment out
   # to modify and override. User file format is one per line, with optional
   # csv format for custom data schemes.
-  #file: 'users',
+  #user_file: 'users',
 
   # Blacklist. Put in users to be ignored (blacklisted). Useful when you 
   # have multiple mailings and don't want to edit the user list manually
