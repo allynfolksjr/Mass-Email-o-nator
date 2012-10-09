@@ -137,6 +137,12 @@ class Mailing
   def parse_user_file
     @data = []
     @data = CSV.read(@configuration[:user_file])
+    if @configuration[:blacklist]
+      @blacklist = []
+      @blacklist = CSV.read(@configuration[:blacklist])
+      @data = @data - @blacklist
+      puts "Blacklist applied. Removed #{@blacklist.count} entries."
+    end
     puts "I successfully parsed #{@data.count} lines of data. Here's the first one: \n#{@data[0]}\n\n"
     @data
   end

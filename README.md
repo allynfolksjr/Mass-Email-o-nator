@@ -6,6 +6,10 @@ nikky@cac.washington.edu
 
 # Version History
 
+## 1.1.0
+
+* Added blacklist functionality. Ability to specify file of users who should be ignored if they appear in the user file, which is useful when mailing list membership is automatically generated and you want to ignore a user each time without manually removing them.
+
 ## 1.0.1
 
 * Fix bug that impacted shared NetID check

@@ -46,6 +46,12 @@ configuration = {
   # csv format for custom data schemes.
   #file: 'users',
 
+  # Blacklist. Put in users to be ignored (blacklisted). Useful when you 
+  # have multiple mailings and don't want to edit the user list manually
+  # each time. Default is 'blacklist'
+  # blacklist: 'blacklist',
+
+
   # The pony library has two main methods of sending messages, via sendmail,
   # which is the default, or smtp via localhost. Change to :smtp if required.
   #via: :sendmail,
