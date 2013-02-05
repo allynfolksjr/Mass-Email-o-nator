@@ -4,6 +4,7 @@ require 'net/http'
 require 'uri'
 require 'nokogiri'
 require 'yell'
+require_relative 'message'
 
 class Message
   def initialize(config)
@@ -64,20 +65,21 @@ class Mailing
   # Accept the configuration variables and a possible message parsing block.
   def initialize(configuration)
     @configuration = configuration
+
     @configuration[:message] ||= "message"
     @configuration[:message_file] ||= "message"
     @configuration[:user_file] ||= "users"
     initialize_log
-    load_message_file
+    # load_message_file
   end
 
   private
   # Reads the message file and saves it as a constant for later use
-  def load_message_file
-    message_file = File.open(@configuration[:message_file],"r")
-    # Make this a constant so we don't actually nuke it without an error
-    @Message = message_file.read
-  end
+  # def load_message_file
+  #   message_file = File.open(@configuration[:message_file],"r")
+  #   # Make this a constant so we don't actually nuke it without an error
+  #   @Message = message_file.read
+  # end
 
   def initialize_log
     if @configuration[:debug].nil?
@@ -229,8 +231,9 @@ class Mailing
 
   end
   def parse_message_contents(local_data=nil)
-    return @Message unless @configuration[:message_parse_block]
-    message = @Message.dup
-    @configuration[:message_parse_block].call(local_data,@Message)
+    $raw_message.call(local_data)
+    #$ return @Message unless @configuration[:message_parse_block]
+    # message = @Message.dup
+    # @configuration[:message_parse_block].call(local_data,@Message)
   end
 end

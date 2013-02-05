@@ -26,7 +26,7 @@ configuration = {
   ## Optional Variables
 
   # Uncomment following line to add owners/administrators of shared NetID as cc's
-  shared: 1,
+  #shared: 1,
 
   # If connecting to the UW groups web service, provide the location to your
   # cert and key
@@ -39,7 +39,7 @@ configuration = {
 
   # Default location for the message file: "./message." Uncomment out and modify
   # to override.
-  #message_file: 'message',
+  message_file: '/home/nikky/streaming_users_2013-02-04',
 
   # Default location for the file of email addresses to send to. Uncomment out
   # to modify and override. User file format is one per line, with optional
