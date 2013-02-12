@@ -39,7 +39,8 @@ configuration = {
 
   # Default location for the message file: "./message." Uncomment out and modify
   # to override.
-  message_file: '/home/nikky/streaming_users_2013-02-04',
+
+  #message_file: 'path_to_message',
 
   # Default location for the file of email addresses to send to. Uncomment out
   # to modify and override. User file format is one per line, with optional

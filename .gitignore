@@ -1,6 +1,7 @@
 configuration.rb
 users
+Gemfile.lock
 *test*
-message
+message*
 *send*
 blacklist
