@@ -3,6 +3,5 @@ configuration.rb
 users
 Gemfile.lock
 *test*
-message*
 *send*
 blacklist
