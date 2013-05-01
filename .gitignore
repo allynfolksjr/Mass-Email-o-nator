@@ -1,4 +1,5 @@
 configuration.rb
+*.log
 users
 Gemfile.lock
 *test*
