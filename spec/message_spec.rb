@@ -13,6 +13,7 @@ describe Message do
       message.subject = "Test Subject"
       message.subject.should eq "Test Subject"
     end
+
   end
 
   describe "#from" do
@@ -22,30 +23,32 @@ describe Message do
       message.from.should eq "test@example.com"
     end
 
-    # it "Rejects invalid email addresses" do
-    #   bad_address = "test@example@com"
-    #   expect{message.from = bad_address}.to raise_error(InvalidMessageError)
-    # end
   end
 
-  describe "#recipient" do
-    it "Can support recipient" do
-      message.recipient = "derp@example.com"
-      message.recipient.should eq "derp@example.com"
+   describe "#to" do
+
+    it "Has a to address" do
+      message.to = "test@example.com"
+      message.to.should eq "test@example.com"
     end
+
   end
+
 
   describe "#cc" do
     it "Can support cc" do
-      message.recipient = "derp@example.com"
-      message.recipient.should eq "derp@example.com"
+      message.cc = "derp@example.com"
+      message.cc.should eq "derp@example.com"
     end
+
   end
 
   describe "#bcc" do
     it "Can support bcc" do
-      message.recipient = "derp@example.com"
-      message.recipient.should eq "derp@example.com"
+      message.bcc = "derp@example.com"
+      message.bcc.should eq "derp@example.com"
     end
+
   end
+
 end
