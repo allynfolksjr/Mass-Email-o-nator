@@ -6,6 +6,12 @@ nikky@cac.washington.edu
 
 # Version History
 
+## 1.3.0 alpha
+
+* Total rewrite of Mailer and Message classes
+* Switch to more easily maintained codebase
+* Initial addition of testing
+
 ## 1.2.0
 
 * Modify `log_event` to `log_message`
