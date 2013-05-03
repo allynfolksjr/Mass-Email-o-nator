@@ -3,7 +3,9 @@ require_relative '../mailing'
 describe Mailing do
 
   subject(:mailing) do
-    Mailing.new
+    Mailing.new({
+      debug: true
+      })
   end
 
   context ".new" do
@@ -25,6 +27,14 @@ describe Mailing do
     end
     it "Will has a default sleep_time attribute" do
       mailing.args[:sleep_time].should eq 3
+    end
+    it "Will accept a debug attribute" do
+      mailing.args[:debug] = true
+      mailing.args[:debug].should eq true
+    end
+    it "Will has a default debug attribute" do
+      mailing = Mailing.new
+      mailing.args[:debug].should eq false
     end
     it "Will accept a default email domain" do
       mailing.args[:default_domain] = "washington.edu"
@@ -48,6 +58,11 @@ describe Mailing do
     it "Will accept a from attribute" do
       mailing.args[:from] = "test@example.com"
       mailing.args[:from].should eq "test@example.com"
+    end
+    it "Has a #debug? helper method" do
+      mailing.debug?.should be_true
+      mailing = Mailing.new
+      mailing.debug?.should be_false
     end
   end
 
@@ -98,7 +113,7 @@ describe Mailing do
 
     it "Will send mail if there are messages" do
       mailing.add_message(Message.new(subject: '1', to: 'test@test.com', from: 'test@test.com', body: '2'))
-      mailing.do
+      mailing.do.should eq 1
     end
     it "Will raise and not send mail if there are no messages" do
       expect{ mailing.do}.to raise_error
