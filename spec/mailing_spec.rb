@@ -4,8 +4,8 @@ describe Mailing do
 
   subject(:mailing) do
     Mailing.new({
-      debug: true
-      })
+                  debug: true
+    })
   end
 
   context ".new" do
@@ -14,8 +14,8 @@ describe Mailing do
     end
     it "Will accept Configuration Variables at instantiation" do
       mailing = Mailing.new({
-        send_method: :smtp
-        })
+                              send_method: :smtp
+      })
       mailing.args[:send_method].should eq :smtp
     end
   end
@@ -99,14 +99,36 @@ describe Mailing do
     end
   end
 
+  context "#<< will behave like #add_message" do
+    before do
+      @message = Message.new
+      @message.subject = "Subject"
+    end
+    it "Will allow a user to add to the messages variable" do
+      pre_add_size = mailing.messages.size
+      mailing.add_message(@message)
+      mailing.messages.size.should eq pre_add_size+1
+      mailing.messages.should include @message
+    end
+    it "Will accept a message-like object" do
+      alternate_message_object = Struct.new(:subject, :body, :to, :from)
+      different_message = alternate_message_object.new(subject: "Hi", to: "Nikky")
+      mailing.add_message(different_message)
+      mailing.messages.should include different_message
+    end
+    it "Will not accept an object that is not like a message" do
+      bad_message_object = Struct.new(:nomethods)
+      bad_message = bad_message_object.new
+      mailing.add_message(bad_message)
+      mailing.messages.should_not include bad_message
+    end
+  end
+
   context "#messages" do
     it "Will allow a user to select all messages" do
       mailing.messages.class.should eq Array
     end
-    it "Will allow a user to manually set all messages" do
-      mailing.messages = [Message.new, Message.new, Message.new]
-      mailing.messages.size.should eq 3
-    end
+
   end
 
   context "#do_mailing" do
@@ -118,10 +140,7 @@ describe Mailing do
     it "Will raise and not send mail if there are no messages" do
       expect{ mailing.do}.to raise_error
     end
-    it "Will raise and not send mail if there are invalid messages" do
-      mailing.messages = [Message.new, Message.new, Message.new]
-      expect{mailing.do}.to raise_error
-    end
+
     it "Will write a message log" do
     end
   end

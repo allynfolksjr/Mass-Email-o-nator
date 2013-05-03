@@ -10,6 +10,9 @@ class Message
     end
   end
 
+  def inspect(include_body=false)
+
+  end
 
 end
 

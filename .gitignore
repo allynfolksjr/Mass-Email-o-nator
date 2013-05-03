@@ -1,4 +1,5 @@
 configuration.rb
+development*
 *.log
 users
 Gemfile.lock

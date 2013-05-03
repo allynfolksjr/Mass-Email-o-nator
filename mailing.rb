@@ -1,7 +1,14 @@
 require 'pony'
+require 'yell'
+require './message'
+
+Yell.new :datefile, :name => 'Mailing'
 
 class Mailing
   attr_accessor :args
+  attr_reader :messages
+  include Yell::Loggable
+
   def initialize(args={})
     args[:send_method] ||= :sendmail
     args[:sleep_time] ||= 3
@@ -9,36 +16,37 @@ class Mailing
     args[:debug] ||= false
     @args = args
     @messages = []
+
+    if debug?
+      logger.debug "Initialized new debug mailer: #{self.inspect}"
+    else
+      logger.info "Initialized new production mailer: #{self.inspect}"
+    end
+
+  end
+
+  def << (message)
+    add_message(message)
   end
 
   def add_message(message)
     if verify_object_is_message(message)
       @messages << message
+      logger.info "Message #{message} added to #{self}"
     else
       false
+      logger.warn "Message #{message} not added to #{self}; not a message."
     end
-  end
-
-  def messages
-    @messages
   end
 
   def debug?
     @args[:debug]
   end
 
-  def messages=(message_list)
-    @messages = message_list
-  end
-
   def do
       raise MailingError,  "No Messages to send!" if @messages.empty?
 
       messages_sent = 0
-
-      @messages.each do |message|
-        verify_message_is_complete(message)
-      end
 
       @messages.each do |message|
         mail_message(message) unless debug?
@@ -84,26 +92,28 @@ class Mailing
           via: @args[:send_method],
           headers: { "mailer" => "nikkyMail" }
         )
-        "Message to #{message.to} sent successfully at #{Time.now}"
+        logger.info "#{message} to #{message.to} sent successfully at #{Time.now}"
       rescue Exception => e
-        "Message Failed to Send! #{e}; that's all I know."
+        logger.error "#{message.inspect} Failed to Send! #{e}; that's all I know."
       end
 
     end
 
     def debug_message(m)
-      {
-         to: m.to,
-          from: m.from,
-          subject: m.subject,
-          body: m.body,
-          cc: m.cc,
-          bcc: m.bcc,
-          via: @args[:send_method],
-          headers: { "mailer" => "nikkyMail" }
-        }
+      msg_hash = {
+        to: m.to,
+        from: m.from,
+        subject: m.subject,
+        body: m.body,
+        cc: m.cc,
+        bcc: m.bcc,
+        via: @args[:send_method],
+        headers: { "mailer" => "nikkyMail" }
+      }
+      logger.debug "Message not sent #{msg_hash}"
+
+    end
   end
-end
 
   class MailingError < RuntimeError
     # I'm a shill, and I have serious exestential questions about my very
