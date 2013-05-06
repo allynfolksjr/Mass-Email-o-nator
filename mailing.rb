@@ -1,6 +1,7 @@
 require 'pony'
 require 'yell'
 require './message'
+require './user_file_module'
 
 Yell.new :datefile, :name => 'Mailing'
 

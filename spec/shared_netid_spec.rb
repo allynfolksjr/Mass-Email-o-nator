@@ -35,6 +35,7 @@ describe SharedNetid do
   context "#check_for_shared_netid" do
     it "Should return true if a NetID is shared" do
       sharedNetid.check_for_shared_netid("sqltest").should eq ["nikky"]
+      sharedNetid.check_for_shared_netid("webtest").should eq ["lutters","nikky"]
     end
 
     it "Should return false if a NetID is not shared" do
