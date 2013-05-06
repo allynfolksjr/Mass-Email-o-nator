@@ -3,6 +3,7 @@ require 'yell'
 require './message'
 require './user_file_module'
 require './message_body_module'
+require './shared_netid'
 
 Yell.new :datefile, :name => 'Mailing'
 
@@ -16,7 +17,7 @@ class Mailing
     args[:sleep_time] ||= 3
     args[:cc_netid_admins] ||= false
     args[:debug] ||= false
-
+    # I should be my own method
     if args[:key] && args[:cert]
       @shared_netid = SharedNetid.new({
         cert: File.read(args[:cert]),
@@ -31,6 +32,7 @@ class Mailing
     @messages = []
     @message_body = message_body
 
+    # I should be my own block/method
     if debug?
       logger.debug "Initialized new debug mailer: #{self.inspect}"
     else
@@ -47,6 +49,7 @@ class Mailing
       from = @args[:from]
       to = add_domain_to_user(individual_message[:to])
 
+      # I need to be improved
       shared_netid_check = @shared_netid.check_for_shared_netid(individual_message[:to])
       if shared_netid_check
         cc = shared_netid_check.map{|netid| netid + "@#{@args[:default_domain]}"}.join(", ")
