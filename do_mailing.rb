@@ -2,46 +2,45 @@ require './message'
 require './mailing'
 require './user_file_module'
 require './shared_netid'
-require './message_body_module'
+
+body = lambda do |data|
+   "hello #{data[:to]}, here's some stuff #{data[:data2]}"
+ end
+
+
 
 mailing = Mailing.new({
-  debug:true
-  })
+  debug:true,
+  subject: "Test; hello",
+  from: "test@example.com",
+  default_domain: "uw.edu",
+  cert: "/home/nikky/nikky_cac_washington_edu.cert",
+  key: "/home/nikky/nikky_cac_washington_edu.key",
+  file: "/home/nikky/Repositories/github/Mass-Email-o-nator/spec/mocks/csv_user_file.txt"
+  }) {|data| "hello #{data[:to]}, here's some stuff #{data[:data2]}" }
 
-shared_netid = SharedNetid.new({
-  cert: File.read("/home/nikky/nikky_cac_washington_edu.cert"),
-  key: File.read("/home/nikky/nikky_cac_washington_edu.key")
-  })
+mailing.load_messages_from_csv_file
+# UserFile::parse("spec/mocks/csv_user_file.txt").each do |message_args|
+#   to = message_args[:to]
 
-subject = "Test; Hello"
-from = "test@example.com"
+#   shared_netid_check = shared_netid.check_for_shared_netid(to)
+#   if shared_netid_check
+#     cc = shared_netid_check.map{|netid| netid + "@uw.edu"}.join(", ")
+#   end
 
-bodyraw = lambda do |data|
-  "hello #{data[:to]}, here's some stuff #{data[:data2]}"
-end
-
-
-UserFile::parse("spec/mocks/csv_user_file.txt").each do |message_args|
-  to = message_args[:to]
-
-  shared_netid_check = shared_netid.check_for_shared_netid(to)
-  if shared_netid_check
-    cc = shared_netid_check.map{|netid| netid + "@uw.edu"}.join(", ")
-  end
-
-  body = MessageParse.do(message_args, &bodyraw)
+#   body = MessageParse.do(message_args, &bodyraw)
 
 
-  message = Message.new({
-    subject: subject,
-    from: from,
-    to: message_args[:to],
-    cc: cc,
-    body: body
-    })
+#   message = Message.new({
+#     subject: subject,
+#     from: from,
+#     to: message_args[:to],
+#     cc: cc,
+#     body: body
+#     })
 
-  mailing << message
+#   mailing << message
 
-end
+# end
 
 mailing.do
