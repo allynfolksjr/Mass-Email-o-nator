@@ -59,6 +59,7 @@ class Mailing
 
     private
 
+
     def verify_object_is_message(message)
       if !message.respond_to?(:subject)
         false

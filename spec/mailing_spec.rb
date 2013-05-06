@@ -142,6 +142,7 @@ describe Mailing do
     end
 
     it "Will write a message log" do
+      raise
     end
   end
 end
