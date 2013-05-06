@@ -25,7 +25,25 @@ describe UserFile do
         data4: 'required'
       }
 
-      UserFile::parse(file)[0].should eq expected_result
+      results = UserFile::parse(file)
+      results[0].should eq expected_result
+      results.size.should eq 2
+
+    end
+    it "Will parse a CSV-formatted file with empty field and return an array of hashes" do
+      expected_result = {
+        to: 'nikky',
+        cc: 'webtest',
+        bcc: 'sqltest',
+        data1: 'additional',
+        data2: 'data',
+        data3: nil,
+        data4: 'required'
+      }
+      results = UserFile::parse(file)
+      results[1].should eq expected_result
+      results.size.should eq 2
+
 
     end
   end
