@@ -18,14 +18,7 @@ class Mailing
     args[:cc_netid_admins] ||= false
     args[:debug] ||= false
 
-    if args[:key] && args[:cert]
-      @shared_netid = SharedNetid.new({
-        cert: File.read(args[:cert]),
-        key: File.read(args[:key])
-        })
-    elsif args[:key] || args[:cert]
-      raise "Key or cert provided, but not both!"
-    end
+    save_cert_and_key({key: args.fetch(:key,false), cert: args.fetch(:cert,false)})
 
     @args = args
     @messages = []
@@ -102,6 +95,48 @@ class Mailing
 
   private
 
+  def save_cert_and_key(arg_hash)
+    key = ''
+    cert = ''
+    if arg_hash[:key] && arg_hash[:cert]
+
+      if is_cert_file?(arg_hash[:key])
+        key = File.read(arg_hash[:key])
+      else
+        key = arg_hash[:key]
+      end
+
+      if is_cert_file?(arg_hash[:cert])
+        cert = File.read(arg_hash[:cert])
+      else
+        cert = arg_hash[:cert]
+      end
+
+      @shared_netid = SharedNetid.new({
+        cert: File.read(arg_hash[:cert]),
+        key: File.read(arg_hash[:key])
+        })
+
+    elsif arg_hash[:key] || arg_hash[:cert]
+
+      raise "Key or cert provided, but not both!"
+
+    end
+
+  end
+
+  def is_cert_file?(path)
+    File.exist?(path)
+  end
+
+  def shared_netid_check?
+    if @shared_netid
+      true
+    else
+      false
+    end
+  end
+
   def add_domain_to_user(user)
     if user =~ /@/
       user
@@ -167,6 +202,6 @@ class Mailing
 end
 
 class MailingError < RuntimeError
-      # I'm a shill, and I have serious exestential questions about my very
-      # existance as a class.
-    end
+    # I'm a shill, and I have serious exestential questions about my very
+    # existance as a class.
+  end
