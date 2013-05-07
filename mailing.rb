@@ -17,7 +17,7 @@ class Mailing
     args[:sleep_time] ||= 3
     args[:cc_netid_admins] ||= false
     args[:debug] ||= false
-    # I should be my own method
+
     if args[:key] && args[:cert]
       @shared_netid = SharedNetid.new({
         cert: File.read(args[:cert]),
@@ -26,7 +26,6 @@ class Mailing
     elsif args[:key] || args[:cert]
       raise "Key or cert provided, but not both!"
     end
-
 
     @args = args
     @messages = []
@@ -49,10 +48,9 @@ class Mailing
       from = @args[:from]
       to = add_domain_to_user(individual_message[:to])
 
-      # I need to be improved
-      shared_netid_check = @shared_netid.check_for_shared_netid(individual_message[:to])
-      if shared_netid_check
-        cc = shared_netid_check.map{|netid| netid + "@#{@args[:default_domain]}"}.join(", ")
+      shared = @shared_netid.check_for_shared_netid(individual_message[:to])
+      if shared
+        cc = shared.map{|netid| netid + "@#{@args[:default_domain]}"}.join(", ")
       end
 
       body = MessageParse.do(individual_message, @message_body)
@@ -128,10 +126,9 @@ class Mailing
   end
 
   def verify_message_is_complete(message)
-    raise MailingError, "Empty Subject!" if message.subject.empty?
-    raise MailingError, "Empty Body!" if message.body.empty?
-    raise MailingError, "Empty To!" if message.to.empty?
-    raise MailingError, "Empty From!" if message.from.empty?
+    %w(subject body to from).each do |field|
+      raise MailingError, "Empty #{field}" if message.send(field).empty?
+    end
   end
 
   def mail_message(message)
