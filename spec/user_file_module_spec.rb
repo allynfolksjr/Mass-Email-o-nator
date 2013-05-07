@@ -1,5 +1,6 @@
 require_relative '../user_file_module'
 
+
 describe UserFile do
 
   subject(:file) do
@@ -20,14 +21,14 @@ describe UserFile do
         cc: 'webtest',
         bcc: 'sqltest',
         data1: 'additional',
-        data2: 'data',
+        data2: 'data a',
         data3: 'as',
         data4: 'required'
       }
 
       results = UserFile::parse(file)
       results[0].should eq expected_result
-      results.size.should eq 2
+      results.size.should eq 3
 
     end
     it "Will parse a CSV-formatted file with empty field and return an array of hashes" do
@@ -36,13 +37,13 @@ describe UserFile do
         cc: 'webtest',
         bcc: 'sqltest',
         data1: 'additional',
-        data2: 'data',
+        data2: 'data b',
         data3: nil,
         data4: 'required'
       }
       results = UserFile::parse(file)
       results[1].should eq expected_result
-      results.size.should eq 2
+      results.size.should eq 3
 
 
     end

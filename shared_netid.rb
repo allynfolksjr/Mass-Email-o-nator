@@ -10,7 +10,7 @@ class SharedNetid
     @args = args
   end
 
-  def check_for_shared_netid(netid)
+  def admins(netid)
     validate_netid(netid)
     response = make_groups_shared_netid_check(netid)
     if response

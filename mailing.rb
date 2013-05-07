@@ -39,11 +39,13 @@ class Mailing
     UserFile::parse(@args[:file]).each do |individual_message|
       subject = @args[:subject]
       from = @args[:from]
-      to = add_domain_to_user(individual_message[:to])
+      to = individual_message[:to]
 
-      shared = @shared_netid.check_for_shared_netid(individual_message[:to])
-      if shared
-        cc = shared.map{|netid| netid + "@#{@args[:default_domain]}"}.join(", ")
+      if shared_netid_check?
+        admins = @netid_tools.admins(to)
+        if admins
+          cc = admins.map{|netid| add_domain_to_user(netid)}.join(", ")
+        end
       end
 
       body = MessageParse.do(individual_message, @message_body)
@@ -51,7 +53,7 @@ class Mailing
       message = Message.new({
         subject: subject,
         from: from,
-        to: individual_message[:to],
+        to: add_domain_to_user(to),
         cc: cc,
         body: body
         })
@@ -112,7 +114,7 @@ class Mailing
         cert = arg_hash[:cert]
       end
 
-      @shared_netid = SharedNetid.new({
+      @netid_tools = SharedNetid.new({
         cert: File.read(arg_hash[:cert]),
         key: File.read(arg_hash[:key])
         })
@@ -130,7 +132,7 @@ class Mailing
   end
 
   def shared_netid_check?
-    if @shared_netid
+    if @netid_tools
       true
     else
       false

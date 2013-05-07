@@ -8,7 +8,9 @@ mailing = Mailing.new({
   cert: "/home/nikky/nikky_cac_washington_edu.cert",
   key: "/home/nikky/nikky_cac_washington_edu.key",
   file: "/home/nikky/Repositories/github/Mass-Email-o-nator/spec/mocks/csv_user_file.txt"
-  }) {|data| "hello #{data[:to]}, here's some stuff #{data[:data2]}" }
+  }) do |data|
+  "hello #{data[:to]}, here's some message body stuff #{data[:data2]}"
+  end
 
 mailing.load_messages_from_csv_file
 

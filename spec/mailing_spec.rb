@@ -66,13 +66,9 @@ describe Mailing do
     end
   end
 
-  # context "Groups Service" do
-  #   it "Will retrieve admins"
-  # end
-
-  # context "Groups Service CC" do
-  #   it "Will cc admins"
-  # end
+  context "#load_messages_from_csv" do
+    it "Will load messages from a csv "
+  end
 
   context "#add_message" do
     before do

@@ -1,4 +1,5 @@
 configuration.rb
+do_mailing.rb
 development*
 *.log
 users
