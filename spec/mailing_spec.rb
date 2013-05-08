@@ -67,7 +67,7 @@ describe Mailing do
   end
 
   context "#load_messages_from_csv" do
-    it "Will load messages from a csv "
+    it "Will load messages from a csv file"
   end
 
   context "#add_message" do

@@ -7,6 +7,8 @@ mailing = Mailing.new({
   default_domain: "uw.edu",
   cert: "/home/nikky/nikky_cac_washington_edu.cert",
   key: "/home/nikky/nikky_cac_washington_edu.key",
+  # cert: '/etc/ssl/certs/ldapmgmt.cac.washington.edu.cert',
+  # key: '/etc/ssl/certs/ldapmgmt.cac.washington.edu.key',
   file: "/home/nikky/Repositories/github/Mass-Email-o-nator/spec/mocks/csv_user_file.txt"
   }) do |data|
   "hello #{data[:to]}, here's some message body stuff #{data[:data2]}"
